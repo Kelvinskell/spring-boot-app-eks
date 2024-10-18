@@ -3,6 +3,8 @@ locals {
     app = var.app
     zone1 = "${var.region}a"
     zone2 = "${var.region}b"
+    eks_name = var.eks_cluster_name
+    eks_version = var.eks_cluster_version
 }
 
 locals {

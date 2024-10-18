@@ -12,21 +12,10 @@ variable "app" {
   default = "spring-boot-app"
 }
 
-variable "image_name" {
+variable "eks_cluster_name" {
   type = string
 }
 
-variable "db_username" {
+variable "eks_cluster_version" {
   type = string
-  sensitive = true
-}
-
-variable "db_password" {
-  type = string
-  sensitive = true
-}
-
-variable "sns_email_address" {
-  type = string
-  description = "The email address to subscribe to SNS Topics"
 }

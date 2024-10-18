@@ -1,10 +1,10 @@
 terraform {
   # Change this to your own remote backend or just use a local backend.
   backend "s3" {
-    bucket         = "bh-spring-boot-app-infra"
+    bucket         = "bh-spring-boot-app-infra-eks"
     key            = "terraform.tfstate"
     region         = "us-east-1"
-    dynamodb_table = "bh-spring-boot-app-infra-table"
+    dynamodb_table = "bh-spring-boot-app-infra-table-eks"
   }
   required_providers {
     aws = {

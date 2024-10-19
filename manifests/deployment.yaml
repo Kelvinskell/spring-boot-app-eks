@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: springboot-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: springboot
@@ -12,41 +12,57 @@ spec:
       labels:
         app: springboot
     spec:
+      initContainers:
+      - name: init-mysql
+        image: mysql:5.7
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: rootpassword
+        command: ['sh', '-c', 'until mysql -h mysql -u myuser -pmypassword -e "SELECT 1"; do echo "Waiting for MySQL..." && sleep 5; done; mysql -h mysql -u root -p$MYSQL_ROOT_PASSWORD < /init.sql']
+        volumeMounts:
+        - name: init-script
+          mountPath: /init.sql
+          subPath: init.sql
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1 
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - springboot
+                topologyKey: "kubernetes.io/hostname"
       containers:
       - name: springboot-container
-        image: ${IMAGE_NAME}
+        image: kelvinskell/bh-spring-boot-app
         ports:
         - containerPort: 8080
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
-          fsGroup: 1000
         resources:
           requests:
-            memory: "256Mi"
+            memory: "512Mi"
             cpu: "500m"
           limits:
-            memory: "512Mi"
+            memory: "1024Mi"
             cpu: "1000m"
-        livenessProbe:
-          httpGet:
-            path: /login
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /login
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        affinity:
-          podAntiAffinity:
-            preferredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - springboot
-            topologyKey: "kubernetes.io/hostname"
+#        livenessProbe:
+#          httpGet:
+#            path: /login
+#            port: 8080
+#          initialDelaySeconds: 30
+#          periodSeconds: 10
+#        readinessProbe:
+#          httpGet:
+#            path: /login
+#            port: 8080
+#          initialDelaySeconds: 30
+#          periodSeconds: 10
+      volumes:
+      - name: init-script
+        configMap:
+          name: mysql-init-script

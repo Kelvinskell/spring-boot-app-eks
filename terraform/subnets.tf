@@ -32,6 +32,7 @@ resource "aws_subnet" "public_zone1" {
     app = local.app
     Name                                                 = "${local.env}-public-${local.zone1}-${local.app}-subnet"
     Environment = var.env
+    "kubernetes.io/role/elb"   = "1"
   }
 }
 
@@ -45,5 +46,6 @@ resource "aws_subnet" "public_zone2" {
     app = local.app
     Name                                                 = "${local.env}-public-${local.zone2}-${local.app}-subnet"
     Environment = var.env
+    "kubernetes.io/role/elb"   = "1"
   }
 }

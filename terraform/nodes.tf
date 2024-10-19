@@ -28,10 +28,16 @@ resource "aws_iam_role_policy_attachment" "amazon_eks_cni_policy" {
   role       = aws_iam_role.nodes.name
 }
 
-resource "aws_iam_role_policy_attachment" "amazon_eks_csi_policy" {
+/*resource "aws_iam_role_policy_attachment" "amazon_eks_csi_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
   role       = aws_iam_role.nodes.name
+}*/
+
+resource "aws_iam_role_policy_attachment" "eks_node_group_AmazonEC2ContainerRegistryReadOnly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.nodes.name
 }
+
 
 
 resource "aws_eks_node_group" "general" {
@@ -46,12 +52,12 @@ resource "aws_eks_node_group" "general" {
   ]
 
   capacity_type  = "ON_DEMAND"
-  instance_types = ["t3.large"]
+  instance_types = ["t3.xlarge"]
 
   scaling_config {
-    desired_size = 1
-    max_size     = 3
-    min_size     = 0
+    desired_size = 2
+    max_size     = 4
+    min_size     = 1
   }
 
   update_config {
@@ -65,7 +71,8 @@ resource "aws_eks_node_group" "general" {
   depends_on = [
     aws_iam_role_policy_attachment.amazon_eks_worker_node_policy,
     aws_iam_role_policy_attachment.amazon_eks_cni_policy,
-    aws_iam_role_policy_attachment.amazon_eks_csi_policy,
+    #aws_iam_role_policy_attachment.amazon_eks_csi_policy,
+    aws_iam_role_policy_attachment.eks_node_group_AmazonEC2ContainerRegistryReadOnly
   ]
 
   # Allow external changes without Terraform plan difference
@@ -75,5 +82,7 @@ resource "aws_eks_node_group" "general" {
 
   tags = {
     Name = "${local.app}-node-group-${local.env}"
+    app = local.app
+    env = local.env
   }
 }

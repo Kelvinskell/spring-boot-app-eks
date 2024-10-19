@@ -47,5 +47,6 @@ resource "aws_eks_cluster" "eks" {
   tags = {
     Name = "${local.app}-eks-cluster-${local.env}"
     app = local.app
+    env = local.env
   }
 }

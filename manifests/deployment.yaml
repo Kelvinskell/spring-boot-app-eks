@@ -17,7 +17,10 @@ spec:
         image: mysql:5.7
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: rootpassword
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
         command: ['sh', '-c', 'until mysql -h mysql -u myuser -pmypassword -e "SELECT 1"; do echo "Waiting for MySQL..." && sleep 5; done; mysql -h mysql -u root -p$MYSQL_ROOT_PASSWORD < /init.sql']
         volumeMounts:
         - name: init-script
@@ -37,7 +40,8 @@ spec:
                 topologyKey: "kubernetes.io/hostname"
       containers:
       - name: springboot-container
-        image: kelvinskell/bh-spring-boot-app
+        image: kelvinskell/bh-spring-boot-app-eks
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
         securityContext:
@@ -50,18 +54,18 @@ spec:
           limits:
             memory: "1024Mi"
             cpu: "1000m"
-#        livenessProbe:
-#          httpGet:
-#            path: /login
-#            port: 8080
-#          initialDelaySeconds: 30
-#          periodSeconds: 10
-#        readinessProbe:
-#          httpGet:
-#            path: /login
-#            port: 8080
-#          initialDelaySeconds: 30
-#          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /login
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /login
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
       volumes:
       - name: init-script
         configMap:

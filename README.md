@@ -39,7 +39,7 @@ aws configure
 
 This project includes several Kubernetes manifest files, each responsible for deploying different components of the application. Below is a brief explanation of each manifest:
 
-- **components.yaml**: This manifest defines the core components of the application, including deployments, services, and configuration.
+- **components.yaml**: This manifest defines the horizontal pod autoscaler metrics server.
 
 - **hpa.yaml**: Horizontal Pod Autoscaler configuration that automatically scales the number of pods based on CPU utilization.
 
